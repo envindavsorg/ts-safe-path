@@ -1,0 +1,55 @@
+{
+  "name": "ts-safe-path",
+  "version": "1.0.0",
+  "description": "Type-safe nested object access and manipulation for TypeScript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "prepublishOnly": "npm run build && npm test",
+    "lint": "biome check ."
+  },
+  "keywords": [
+    "typescript",
+    "type-safe",
+    "object",
+    "nested",
+    "path",
+    "lodash",
+    "get",
+    "set",
+    "utility"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ts-safe-path.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/ts-safe-path/issues"
+  },
+  "homepage": "https://github.com/yourusername/ts-safe-path#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.5",
+    "@biomejs/biome": "^2.1.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.ts"]
+  }
+}
