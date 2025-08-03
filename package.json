@@ -22,16 +22,16 @@
     "set",
     "utility"
   ],
-  "author": "Your Name",
+  "author": "Cuzeac Florin",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/ts-safe-path.git"
+    "url": "https://github.com/envindavsorg/ts-safe-path.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/ts-safe-path/issues"
+    "url": "https://github.com/envindavsorg/ts-safe-path/issues"
   },
-  "homepage": "https://github.com/yourusername/ts-safe-path#readme",
+  "homepage": "https://github.com/envindavsorg/ts-safe-path#readme",
   "devDependencies": {
     "@types/jest": "^29.5.5",
     "@biomejs/biome": "^2.1.2",

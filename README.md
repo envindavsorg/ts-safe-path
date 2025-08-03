@@ -4,7 +4,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/ts-safe-path)](https://bundlephobia.com/package/ts-safe-path)
-[![Build Status](https://img.shields.io/github/workflow/status/envindavsorg/ts-safe-path/CI)](https://github.com/envindavsorg/ts-safe-path/actions)
 
 **Type-safe nested object access and manipulation for TypeScript with full autocompletion and zero runtime errors.**
 

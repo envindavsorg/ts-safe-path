@@ -3,13 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.clearPathCache = exports.getAllPaths = exports.isValidPath = exports.deletePath = exports.hasPath = exports.setValueByPath = exports.getValueByPath = void 0;
 exports.safePath = safePath;
 const utils_1 = require("./utils");
+Object.defineProperty(exports, "clearPathCache", { enumerable: true, get: function () { return utils_1.clearPathCache; } });
 Object.defineProperty(exports, "deletePath", { enumerable: true, get: function () { return utils_1.deletePath; } });
+Object.defineProperty(exports, "getAllPaths", { enumerable: true, get: function () { return utils_1.getAllPaths; } });
 Object.defineProperty(exports, "getValueByPath", { enumerable: true, get: function () { return utils_1.getValueByPath; } });
 Object.defineProperty(exports, "hasPath", { enumerable: true, get: function () { return utils_1.hasPath; } });
-Object.defineProperty(exports, "setValueByPath", { enumerable: true, get: function () { return utils_1.setValueByPath; } });
 Object.defineProperty(exports, "isValidPath", { enumerable: true, get: function () { return utils_1.isValidPath; } });
-Object.defineProperty(exports, "getAllPaths", { enumerable: true, get: function () { return utils_1.getAllPaths; } });
-Object.defineProperty(exports, "clearPathCache", { enumerable: true, get: function () { return utils_1.clearPathCache; } });
+Object.defineProperty(exports, "setValueByPath", { enumerable: true, get: function () { return utils_1.setValueByPath; } });
 function safePath(obj, defaultOptions) {
     return {
         get(path) {
@@ -17,22 +17,22 @@ function safePath(obj, defaultOptions) {
         },
         set(path, value, options) {
             const opts = { ...defaultOptions, ...options };
-            const result = (0, utils_1.setValueByPath)(obj, path, value, opts);
-            if (!opts?.immutable) {
-                Object.assign(obj, result);
+            if (opts?.immutable) {
+                return (0, utils_1.setValueByPath)(obj, path, value, opts);
             }
-            return result;
+            (0, utils_1.setValueByPath)(obj, path, value, opts);
+            return obj;
         },
         has(path) {
             return (0, utils_1.hasPath)(obj, path);
         },
         delete(path, options) {
             const opts = { ...defaultOptions, ...options };
-            const result = (0, utils_1.deletePath)(obj, path, opts);
-            if (!opts?.immutable) {
-                Object.assign(obj, result);
+            if (opts?.immutable) {
+                return (0, utils_1.deletePath)(obj, path, opts);
             }
-            return result;
+            (0, utils_1.deletePath)(obj, path, opts);
+            return obj;
         },
         update(path, updater, options) {
             const currentValue = (0, utils_1.getValueByPath)(obj, path);

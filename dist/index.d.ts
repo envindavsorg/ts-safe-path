@@ -1,5 +1,5 @@
 import type { DeepPartial, PathKeys, PathValue, SafePathOptions } from './types';
-import { deletePath, getValueByPath, hasPath, setValueByPath, isValidPath, getAllPaths, clearPathCache } from './utils';
+import { clearPathCache, deletePath, getAllPaths, getValueByPath, hasPath, isValidPath, setValueByPath } from './utils';
 export interface SafePath<T extends Record<string, any>> {
     get<P extends PathKeys<T>>(path: P): PathValue<T, P> | undefined;
     set<P extends PathKeys<T>>(path: P, value: PathValue<T, P>, options?: SafePathOptions): T;
@@ -12,5 +12,5 @@ export interface SafePath<T extends Record<string, any>> {
 }
 export declare function safePath<T extends Record<string, any>>(obj: T, defaultOptions?: SafePathOptions): SafePath<T>;
 export type { PathKeys, PathValue, DeepPartial, SafePathOptions };
-export { getValueByPath, setValueByPath, hasPath, deletePath, isValidPath, getAllPaths, clearPathCache };
+export { getValueByPath, setValueByPath, hasPath, deletePath, isValidPath, getAllPaths, clearPathCache, };
 //# sourceMappingURL=index.d.ts.map
