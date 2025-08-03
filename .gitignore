@@ -105,4 +105,4 @@ temp/
 
 # AI Assistant files
 .claude/
-CLAUDE.md
+CLAUDE.md.DS_Store
