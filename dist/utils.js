@@ -1,22 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getValueByPath = getValueByPath;
-exports.setValueByPath = setValueByPath;
-exports.hasPath = hasPath;
-exports.deletePath = deletePath;
-exports.isValidPath = isValidPath;
-exports.getAllPaths = getAllPaths;
-exports.clearPathCache = clearPathCache;
+exports.clearPathCache = exports.getAllPaths = exports.isValidPath = exports.deletePath = exports.hasPath = exports.setValueByPath = exports.getValueByPath = void 0;
 const pathCache = new Map();
-function parsePath(path) {
+const parsePath = (path) => {
     if (pathCache.has(path)) {
-        return pathCache.get(path);
+        const cached = pathCache.get(path);
+        if (cached) {
+            return cached;
+        }
     }
     const keys = path.split('.');
     pathCache.set(path, keys);
     return keys;
-}
-function getValueByPath(obj, path) {
+};
+const getValueByPath = (obj, path) => {
     const keys = parsePath(path);
     let result = obj;
     for (const key of keys) {
@@ -26,22 +23,29 @@ function getValueByPath(obj, path) {
         result = result[key];
     }
     return result;
-}
-function setValueByPath(obj, path, value, options) {
+};
+exports.getValueByPath = getValueByPath;
+const setValueByPath = (obj, path, value, options) => {
     const keys = parsePath(path);
     const lastKey = keys.pop();
+    if (!lastKey) {
+        return obj;
+    }
     const target = options?.immutable ? structuredClone(obj) : obj;
     let current = target;
     for (const key of keys) {
-        if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
+        if (!(key in current) ||
+            typeof current[key] !== 'object' ||
+            current[key] === null) {
             current[key] = {};
         }
         current = current[key];
     }
     current[lastKey] = value;
     return target;
-}
-function hasPath(obj, path) {
+};
+exports.setValueByPath = setValueByPath;
+const hasPath = (obj, path) => {
     const keys = parsePath(path);
     let current = obj;
     for (const key of keys) {
@@ -51,10 +55,14 @@ function hasPath(obj, path) {
         current = current[key];
     }
     return true;
-}
-function deletePath(obj, path, options) {
+};
+exports.hasPath = hasPath;
+const deletePath = (obj, path, options) => {
     const keys = parsePath(path);
     const lastKey = keys.pop();
+    if (!lastKey) {
+        return obj;
+    }
     const target = options?.immutable ? structuredClone(obj) : obj;
     let current = target;
     for (const key of keys) {
@@ -67,30 +75,41 @@ function deletePath(obj, path, options) {
         delete current[lastKey];
     }
     return target;
-}
-function isValidPath(obj, path) {
-    return typeof path === 'string' && path.length > 0 && hasPath(obj, path);
-}
-function getAllPaths(obj, prefix = '') {
+};
+exports.deletePath = deletePath;
+const isValidPath = (obj, path) => typeof path === 'string' &&
+    path.length > 0 &&
+    (0, exports.hasPath)(obj, path);
+exports.isValidPath = isValidPath;
+const getAllPaths = (obj, prefix = '') => {
     const paths = [];
     const stack = [{ obj, prefix }];
     while (stack.length > 0) {
-        const { obj: current, prefix: currentPrefix } = stack.pop();
-        for (const key in current) {
-            if (Object.hasOwn(current, key)) {
-                const newPath = currentPrefix ? `${currentPrefix}.${key}` : key;
-                paths.push(newPath);
-                if (current[key] &&
-                    typeof current[key] === 'object' &&
-                    !Array.isArray(current[key])) {
-                    stack.push({ obj: current[key], prefix: newPath });
+        const stackItem = stack.pop();
+        if (!stackItem) {
+            break;
+        }
+        const { obj: current, prefix: currentPrefix } = stackItem;
+        if (current && typeof current === 'object') {
+            const currentObj = current;
+            for (const key in currentObj) {
+                if (Object.hasOwn(currentObj, key)) {
+                    const newPath = currentPrefix ? `${currentPrefix}.${key}` : key;
+                    paths.push(newPath);
+                    if (currentObj[key] &&
+                        typeof currentObj[key] === 'object' &&
+                        !Array.isArray(currentObj[key])) {
+                        stack.push({ obj: currentObj[key], prefix: newPath });
+                    }
                 }
             }
         }
     }
     return paths;
-}
-function clearPathCache() {
+};
+exports.getAllPaths = getAllPaths;
+const clearPathCache = () => {
     pathCache.clear();
-}
+};
+exports.clearPathCache = clearPathCache;
 //# sourceMappingURL=utils.js.map

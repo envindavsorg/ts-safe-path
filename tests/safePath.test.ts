@@ -46,13 +46,13 @@ describe('safePath', () => {
 		});
 
 		it('should create missing intermediate objects', () => {
-			const obj: any = { test: {} };
+			const obj: Record<string, unknown> = { test: {} };
 			const sp = safePath(obj);
 
 			const result = sp.set('test.deep.nested.value' as any, 'success');
 			
 			expect(result).toBe(obj); // Should return the same object reference
-			expect(obj.test.deep.nested.value).toBe('success');
+			expect((obj as any).test.deep.nested.value).toBe('success');
 		});
 	});
 
@@ -169,11 +169,11 @@ describe('safePath', () => {
 
 	describe('edge cases', () => {
 		it('should handle null values in path', () => {
-			const obj: any = { user: { profile: null } };
+			const obj: Record<string, unknown> = { user: { profile: null } };
 			const sp = safePath(obj);
 
 			sp.set('user.profile.email' as any, 'test@example.com');
-			expect(obj.user.profile.email).toBe('test@example.com');
+			expect((obj as any).user.profile.email).toBe('test@example.com');
 		});
 
 		it('should handle array values', () => {
@@ -184,11 +184,11 @@ describe('safePath', () => {
 		});
 
 		it('should handle undefined intermediate objects', () => {
-			const obj: any = {};
+			const obj: Record<string, unknown> = {};
 			const sp = safePath(obj);
 
-			sp.set('deeply.nested.path', 'value');
-			expect(obj.deeply.nested.path).toBe('value');
+			sp.set('deeply.nested.path' as any, 'value');
+			expect((obj as any).deeply.nested.path).toBe('value');
 		});
 	});
 });
