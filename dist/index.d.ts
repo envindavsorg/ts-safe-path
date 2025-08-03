@@ -1,6 +1,6 @@
 import type { DeepPartial, PathKeys, PathValue, SafePathOptions } from './types';
 import { clearPathCache, deletePath, getAllPaths, getValueByPath, hasPath, isValidPath, setValueByPath } from './utils';
-export interface SafePath<T extends Record<string, any>> {
+export interface SafePath<T extends Record<string, unknown>> {
     get<P extends PathKeys<T>>(path: P): PathValue<T, P> | undefined;
     set<P extends PathKeys<T>>(path: P, value: PathValue<T, P>, options?: SafePathOptions): T;
     has<P extends PathKeys<T>>(path: P): boolean;
@@ -10,7 +10,7 @@ export interface SafePath<T extends Record<string, any>> {
     getAllPaths(): PathKeys<T>[];
     isValidPath(path: string): path is PathKeys<T>;
 }
-export declare function safePath<T extends Record<string, any>>(obj: T, defaultOptions?: SafePathOptions): SafePath<T>;
+export declare const safePath: <T extends Record<string, unknown>>(obj: T, defaultOptions?: SafePathOptions) => SafePath<T>;
 export type { PathKeys, PathValue, DeepPartial, SafePathOptions };
 export { getValueByPath, setValueByPath, hasPath, deletePath, isValidPath, getAllPaths, clearPathCache, };
 //# sourceMappingURL=index.d.ts.map

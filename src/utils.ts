@@ -2,128 +2,164 @@ import type { PathKeys, PathValue, SafePathOptions } from './types';
 
 const pathCache = new Map<string, string[]>();
 
-function parsePath(path: string): string[] {
+const parsePath = (path: string): string[] => {
 	if (pathCache.has(path)) {
-		return pathCache.get(path)!;
+		const cached = pathCache.get(path);
+		if (cached) {
+			return cached;
+		}
 	}
 	const keys = path.split('.');
 	pathCache.set(path, keys);
 	return keys;
-}
+};
 
-export function getValueByPath<
-	T extends Record<string, any>,
+export const getValueByPath = <
+	T extends Record<string, unknown>,
 	P extends PathKeys<T>,
->(obj: T, path: P): PathValue<T, P> | undefined {
+>(
+	obj: T,
+	path: P,
+): PathValue<T, P> | undefined => {
 	const keys = parsePath(path as string);
-	let result: any = obj;
+	let result: unknown = obj;
 
 	for (const key of keys) {
 		if (result == null || typeof result !== 'object') {
 			return undefined;
 		}
-		result = result[key];
+		result = (result as Record<string, unknown>)[key];
 	}
 
 	return result as PathValue<T, P>;
-}
+};
 
-export function setValueByPath<
-	T extends Record<string, any>,
+export const setValueByPath = <
+	T extends Record<string, unknown>,
 	P extends PathKeys<T>,
->(obj: T, path: P, value: PathValue<T, P>, options?: SafePathOptions): T {
+>(
+	obj: T,
+	path: P,
+	value: PathValue<T, P>,
+	options?: SafePathOptions,
+): T => {
 	const keys = parsePath(path as string);
-	const lastKey = keys.pop()!;
+	const lastKey = keys.pop();
+	if (!lastKey) {
+		return obj;
+	}
 	const target = options?.immutable ? structuredClone(obj) : obj;
-	let current: any = target;
+	let current: Record<string, unknown> = target;
 
 	for (const key of keys) {
-		if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
+		if (
+			!(key in current) ||
+			typeof current[key] !== 'object' ||
+			current[key] === null
+		) {
 			current[key] = {};
 		}
-		current = current[key];
+		current = current[key] as Record<string, unknown>;
 	}
 
 	current[lastKey] = value;
 	return target;
-}
+};
 
-export function hasPath<T extends Record<string, any>, P extends PathKeys<T>>(
+export const hasPath = <
+	T extends Record<string, unknown>,
+	P extends PathKeys<T>,
+>(
 	obj: T,
 	path: P,
-): boolean {
+): boolean => {
 	const keys = parsePath(path as string);
-	let current: any = obj;
+	let current = obj;
 
 	for (const key of keys) {
 		if (current == null || typeof current !== 'object' || !(key in current)) {
 			return false;
 		}
-		current = current[key];
+		current = (current as Record<string, unknown>)[key] as T;
 	}
 
 	return true;
-}
+};
 
-export function deletePath<
-	T extends Record<string, any>,
+export const deletePath = <
+	T extends Record<string, unknown>,
 	P extends PathKeys<T>,
->(obj: T, path: P, options?: SafePathOptions): T {
+>(
+	obj: T,
+	path: P,
+	options?: SafePathOptions,
+): T => {
 	const keys = parsePath(path as string);
-	const lastKey = keys.pop()!;
+	const lastKey = keys.pop();
+	if (!lastKey) {
+		return obj;
+	}
 	const target = options?.immutable ? structuredClone(obj) : obj;
-	let current: any = target;
+	let current: unknown = target;
 
 	for (const key of keys) {
 		if (current == null || typeof current !== 'object' || !(key in current)) {
 			return target;
 		}
-		current = current[key];
+		current = (current as Record<string, unknown>)[key];
 	}
 
 	if (current && typeof current === 'object') {
-		delete current[lastKey];
+		delete (current as Record<string, unknown>)[lastKey];
 	}
 
 	return target;
-}
+};
 
-export function isValidPath<T extends Record<string, any>>(
+export const isValidPath = <T extends Record<string, unknown>>(
 	obj: T,
 	path: string,
-): path is PathKeys<T> {
-	return typeof path === 'string' && path.length > 0 && hasPath(obj, path as PathKeys<T>);
-}
+): path is PathKeys<T> =>
+	typeof path === 'string' &&
+	path.length > 0 &&
+	hasPath(obj, path as PathKeys<T>);
 
-export function getAllPaths<T extends Record<string, any>>(
+export const getAllPaths = <T extends Record<string, unknown>>(
 	obj: T,
 	prefix = '',
-): PathKeys<T>[] {
+): PathKeys<T>[] => {
 	const paths: string[] = [];
-	const stack: Array<{ obj: any; prefix: string }> = [{ obj, prefix }];
+	const stack: Array<{ obj: unknown; prefix: string }> = [{ obj, prefix }];
 
 	while (stack.length > 0) {
-		const { obj: current, prefix: currentPrefix } = stack.pop()!;
+		const stackItem = stack.pop();
+		if (!stackItem) {
+			break;
+		}
+		const { obj: current, prefix: currentPrefix } = stackItem;
 
-		for (const key in current) {
-			if (Object.hasOwn(current, key)) {
-				const newPath = currentPrefix ? `${currentPrefix}.${key}` : key;
-				paths.push(newPath);
+		if (current && typeof current === 'object') {
+			const currentObj = current as Record<string, unknown>;
+			for (const key in currentObj) {
+				if (Object.hasOwn(currentObj, key)) {
+					const newPath = currentPrefix ? `${currentPrefix}.${key}` : key;
+					paths.push(newPath);
 
-				if (
-					current[key] &&
-					typeof current[key] === 'object' &&
-					!Array.isArray(current[key])
-				) {
-					stack.push({ obj: current[key], prefix: newPath });
+					if (
+						currentObj[key] &&
+						typeof currentObj[key] === 'object' &&
+						!Array.isArray(currentObj[key])
+					) {
+						stack.push({ obj: currentObj[key], prefix: newPath });
+					}
 				}
 			}
 		}
 	}
 
 	return paths as PathKeys<T>[];
-}
+};
 
-export function clearPathCache(): void {
+export const clearPathCache = (): void => {
 	pathCache.clear();
-}
+};
