@@ -50,7 +50,7 @@ describe('safePath', () => {
 			const sp = safePath(obj);
 
 			const result = sp.set('test.deep.nested.value' as any, 'success');
-			
+
 			expect(result).toBe(obj); // Should return the same object reference
 			expect((obj as any).test.deep.nested.value).toBe('success');
 		});
@@ -109,7 +109,7 @@ describe('safePath', () => {
 		it('should handle immutable delete operations', () => {
 			const original = {
 				user: { name: 'Test', tempProp: 'delete-me' },
-				other: { data: 'keep' }
+				other: { data: 'keep' },
 			};
 			const sp = safePath(original);
 
