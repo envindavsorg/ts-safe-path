@@ -46,13 +46,14 @@ describe('safePath', () => {
 		});
 
 		it('should create missing intermediate objects', () => {
-			const obj: Record<string, unknown> = { test: {} };
+			type TestObj = { test: { deep: { nested: { value?: string } } } };
+			const obj: TestObj = { test: { deep: { nested: {} } } };
 			const sp = safePath(obj);
 
-			const result = sp.set('test.deep.nested.value' as any, 'success');
+			const result = sp.set('test.deep.nested.value', 'success');
 
 			expect(result).toBe(obj); // Should return the same object reference
-			expect((obj as any).test.deep.nested.value).toBe('success');
+			expect(obj.test.deep.nested.value).toBe('success');
 		});
 	});
 
@@ -107,13 +108,17 @@ describe('safePath', () => {
 		});
 
 		it('should handle immutable delete operations', () => {
-			const original = {
+			type TestObj = {
+				user: { name: string; tempProp?: string };
+				other: { data: string };
+			};
+			const original: TestObj = {
 				user: { name: 'Test', tempProp: 'delete-me' },
 				other: { data: 'keep' },
 			};
 			const sp = safePath(original);
 
-			const result = sp.delete('user.tempProp' as any, { immutable: true });
+			const result = sp.delete('user.tempProp', { immutable: true });
 
 			expect(original.user.tempProp).toBe('delete-me'); // Original unchanged
 			expect(result).not.toBe(original); // Should be different object
@@ -169,11 +174,12 @@ describe('safePath', () => {
 
 	describe('edge cases', () => {
 		it('should handle null values in path', () => {
-			const obj: Record<string, unknown> = { user: { profile: null } };
+			type TestObj = { user: { profile: { email?: string } } };
+			const obj: TestObj = { user: { profile: {} } };
 			const sp = safePath(obj);
 
-			sp.set('user.profile.email' as any, 'test@example.com');
-			expect((obj as any).user.profile.email).toBe('test@example.com');
+			sp.set('user.profile.email', 'test@example.com');
+			expect(obj.user.profile.email).toBe('test@example.com');
 		});
 
 		it('should handle array values', () => {
@@ -184,11 +190,12 @@ describe('safePath', () => {
 		});
 
 		it('should handle undefined intermediate objects', () => {
-			const obj: Record<string, unknown> = {};
+			type TestObj = { deeply: { nested: { path?: string } } };
+			const obj: TestObj = { deeply: { nested: {} } };
 			const sp = safePath(obj);
 
-			sp.set('deeply.nested.path' as any, 'value');
-			expect((obj as any).deeply.nested.path).toBe('value');
+			sp.set('deeply.nested.path', 'value');
+			expect(obj.deeply.nested.path).toBe('value');
 		});
 	});
 });
