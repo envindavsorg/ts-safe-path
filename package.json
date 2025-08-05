@@ -34,6 +34,11 @@
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com"
 	},
+	"pnpm": {
+		"publishConfig": {
+			"git-checks": false
+		}
+	},
 	"bugs": {
 		"url": "https://github.com/envindavsorg/ts-safe-path/issues"
 	},
