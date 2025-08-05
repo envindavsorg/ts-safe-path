@@ -3,8 +3,7 @@ import type { PathKeys, PathValue, SafePathOptions } from './types';
 const pathCache = new Map<string, string[]>();
 const MAX_CACHE_SIZE = 1000;
 
-// Optimized helper for checking if value is a valid object
-const isValidObject = (value: unknown): value is Record<string, unknown> => 
+const isValidObject = (value: unknown): value is Record<string, unknown> =>
 	value != null && typeof value === 'object' && !Array.isArray(value);
 
 const parsePath = (path: string): string[] => {
@@ -15,16 +14,14 @@ const parsePath = (path: string): string[] => {
 		}
 	}
 	const keys = path.split('.');
-	
-	// Prevent memory leaks by limiting cache size
+
 	if (pathCache.size >= MAX_CACHE_SIZE) {
-		// Remove oldest entry (first key)
 		const firstKey = pathCache.keys().next().value;
 		if (firstKey) {
 			pathCache.delete(firstKey);
 		}
 	}
-	
+
 	pathCache.set(path, keys);
 	return keys;
 };
@@ -69,8 +66,10 @@ export const setValueByPath = <
 
 	for (let i = 0; i < keys.length; i++) {
 		const key = keys[i];
-		if (!key) continue;
-		
+		if (!key) {
+			continue;
+		}
+
 		if (
 			!(key in current) ||
 			typeof current[key] !== 'object' ||
@@ -97,7 +96,12 @@ export const hasPath = <
 
 	for (let i = 0; i < keys.length; i++) {
 		const key = keys[i];
-		if (!key || current == null || typeof current !== 'object' || !Object.hasOwn(current, key)) {
+		if (
+			!key ||
+			current == null ||
+			typeof current !== 'object' ||
+			!Object.hasOwn(current, key)
+		) {
 			return false;
 		}
 		current = (current as Record<string, unknown>)[key] as T;
@@ -124,7 +128,12 @@ export const deletePath = <
 
 	for (let i = 0; i < keys.length; i++) {
 		const key = keys[i];
-		if (!key || current == null || typeof current !== 'object' || !Object.hasOwn(current, key)) {
+		if (
+			!key ||
+			current == null ||
+			typeof current !== 'object' ||
+			!Object.hasOwn(current, key)
+		) {
 			return target;
 		}
 		current = (current as Record<string, unknown>)[key];
