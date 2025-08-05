@@ -33,12 +33,27 @@ sp.set('user.profile.address.city', 'New York');
 
 ## 📦 Installation
 
+### From NPM Registry (Recommended)
 ```bash
 npm install ts-safe-path
 # or
 yarn add ts-safe-path
 # or
 pnpm add ts-safe-path
+```
+
+### From GitHub Packages
+```bash
+npm install @envindavsorg/ts-safe-path
+# or
+yarn add @envindavsorg/ts-safe-path
+# or
+pnpm add @envindavsorg/ts-safe-path
+```
+
+If using GitHub Packages, add this to your `.npmrc`:
+```
+@envindavsorg:registry=https://npm.pkg.github.com
 ```
 
 ## ⚡ Quick Start

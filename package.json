@@ -1,5 +1,5 @@
 {
-	"name": "ts-safe-path",
+	"name": "@envindavsorg/ts-safe-path",
 	"version": "1.0.4",
 	"description": "Type-safe nested object access and manipulation for TypeScript \uD83D\uDE80",
 	"packageManager": "pnpm@9.0.0",
@@ -30,6 +30,9 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/envindavsorg/ts-safe-path.git"
+	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
 	},
 	"bugs": {
 		"url": "https://github.com/envindavsorg/ts-safe-path/issues"
