@@ -65,9 +65,11 @@ const deepMerge = (target, source, immutable = false) => {
                 targetValue &&
                 typeof targetValue === 'object' &&
                 !Array.isArray(targetValue)) {
+                // @ts-ignore
                 result[key] = deepMerge(targetValue, sourceValue, immutable);
             }
             else if (sourceValue !== undefined) {
+                // @ts-ignore
                 result[key] = sourceValue;
             }
         }
