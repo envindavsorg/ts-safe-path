@@ -2,6 +2,7 @@
 	"name": "ts-safe-path",
 	"version": "1.0.2",
 	"description": "Type-safe nested object access and manipulation for TypeScript \uD83D\uDE80",
+	"packageManager": "pnpm@9.0.0",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
