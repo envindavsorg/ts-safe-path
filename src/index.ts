@@ -115,15 +115,13 @@ const deepMerge = <T extends Record<string, unknown>>(
 				typeof targetValue === 'object' &&
 				!Array.isArray(targetValue)
 			) {
-				// @ts-ignore
-				result[key] = deepMerge(
+				(result as Record<string, unknown>)[key] = deepMerge(
 					targetValue as Record<string, unknown>,
 					sourceValue as DeepPartial<T>,
 					immutable,
 				);
 			} else if (sourceValue !== undefined) {
-				// @ts-ignore
-				result[key] = sourceValue;
+				(result as Record<string, unknown>)[key] = sourceValue;
 			}
 		}
 	}

@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.clearPathCache = exports.getAllPaths = exports.isValidPath = exports.deletePath = exports.hasPath = exports.setValueByPath = exports.getValueByPath = void 0;
 const pathCache = new Map();
+const MAX_CACHE_SIZE = 1000;
+// Optimized helper for checking if value is a valid object
+const isValidObject = (value) => value != null && typeof value === 'object' && !Array.isArray(value);
 const parsePath = (path) => {
     if (pathCache.has(path)) {
         const cached = pathCache.get(path);
@@ -10,14 +13,23 @@ const parsePath = (path) => {
         }
     }
     const keys = path.split('.');
+    // Prevent memory leaks by limiting cache size
+    if (pathCache.size >= MAX_CACHE_SIZE) {
+        // Remove oldest entry (first key)
+        const firstKey = pathCache.keys().next().value;
+        if (firstKey) {
+            pathCache.delete(firstKey);
+        }
+    }
     pathCache.set(path, keys);
     return keys;
 };
 const getValueByPath = (obj, path) => {
     const keys = parsePath(path);
     let result = obj;
-    for (const key of keys) {
-        if (result == null || typeof result !== 'object') {
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (!key || result == null || typeof result !== 'object') {
             return undefined;
         }
         result = result[key];
@@ -33,7 +45,10 @@ const setValueByPath = (obj, path, value, options) => {
     }
     const target = options?.immutable ? structuredClone(obj) : obj;
     let current = target;
-    for (const key of keys) {
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (!key)
+            continue;
         if (!(key in current) ||
             typeof current[key] !== 'object' ||
             current[key] === null) {
@@ -48,8 +63,9 @@ exports.setValueByPath = setValueByPath;
 const hasPath = (obj, path) => {
     const keys = parsePath(path);
     let current = obj;
-    for (const key of keys) {
-        if (current == null || typeof current !== 'object' || !(key in current)) {
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (!key || current == null || typeof current !== 'object' || !Object.hasOwn(current, key)) {
             return false;
         }
         current = current[key];
@@ -65,8 +81,9 @@ const deletePath = (obj, path, options) => {
     }
     const target = options?.immutable ? structuredClone(obj) : obj;
     let current = target;
-    for (const key of keys) {
-        if (current == null || typeof current !== 'object' || !(key in current)) {
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (!key || current == null || typeof current !== 'object' || !Object.hasOwn(current, key)) {
             return target;
         }
         current = current[key];
@@ -96,9 +113,7 @@ const getAllPaths = (obj, prefix = '') => {
                 if (Object.hasOwn(currentObj, key)) {
                     const newPath = currentPrefix ? `${currentPrefix}.${key}` : key;
                     paths.push(newPath);
-                    if (currentObj[key] &&
-                        typeof currentObj[key] === 'object' &&
-                        !Array.isArray(currentObj[key])) {
+                    if (isValidObject(currentObj[key])) {
                         stack.push({ obj: currentObj[key], prefix: newPath });
                     }
                 }

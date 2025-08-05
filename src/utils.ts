@@ -1,6 +1,11 @@
 import type { PathKeys, PathValue, SafePathOptions } from './types';
 
 const pathCache = new Map<string, string[]>();
+const MAX_CACHE_SIZE = 1000;
+
+// Optimized helper for checking if value is a valid object
+const isValidObject = (value: unknown): value is Record<string, unknown> => 
+	value != null && typeof value === 'object' && !Array.isArray(value);
 
 const parsePath = (path: string): string[] => {
 	if (pathCache.has(path)) {
@@ -10,6 +15,16 @@ const parsePath = (path: string): string[] => {
 		}
 	}
 	const keys = path.split('.');
+	
+	// Prevent memory leaks by limiting cache size
+	if (pathCache.size >= MAX_CACHE_SIZE) {
+		// Remove oldest entry (first key)
+		const firstKey = pathCache.keys().next().value;
+		if (firstKey) {
+			pathCache.delete(firstKey);
+		}
+	}
+	
 	pathCache.set(path, keys);
 	return keys;
 };
@@ -24,8 +39,9 @@ export const getValueByPath = <
 	const keys = parsePath(path as string);
 	let result: unknown = obj;
 
-	for (const key of keys) {
-		if (result == null || typeof result !== 'object') {
+	for (let i = 0; i < keys.length; i++) {
+		const key = keys[i];
+		if (!key || result == null || typeof result !== 'object') {
 			return undefined;
 		}
 		result = (result as Record<string, unknown>)[key];
@@ -51,7 +67,10 @@ export const setValueByPath = <
 	const target = options?.immutable ? structuredClone(obj) : obj;
 	let current: Record<string, unknown> = target;
 
-	for (const key of keys) {
+	for (let i = 0; i < keys.length; i++) {
+		const key = keys[i];
+		if (!key) continue;
+		
 		if (
 			!(key in current) ||
 			typeof current[key] !== 'object' ||
@@ -76,8 +95,9 @@ export const hasPath = <
 	const keys = parsePath(path as string);
 	let current = obj;
 
-	for (const key of keys) {
-		if (current == null || typeof current !== 'object' || !(key in current)) {
+	for (let i = 0; i < keys.length; i++) {
+		const key = keys[i];
+		if (!key || current == null || typeof current !== 'object' || !Object.hasOwn(current, key)) {
 			return false;
 		}
 		current = (current as Record<string, unknown>)[key] as T;
@@ -102,8 +122,9 @@ export const deletePath = <
 	const target = options?.immutable ? structuredClone(obj) : obj;
 	let current: unknown = target;
 
-	for (const key of keys) {
-		if (current == null || typeof current !== 'object' || !(key in current)) {
+	for (let i = 0; i < keys.length; i++) {
+		const key = keys[i];
+		if (!key || current == null || typeof current !== 'object' || !Object.hasOwn(current, key)) {
 			return target;
 		}
 		current = (current as Record<string, unknown>)[key];
@@ -145,11 +166,7 @@ export const getAllPaths = <T extends Record<string, unknown>>(
 					const newPath = currentPrefix ? `${currentPrefix}.${key}` : key;
 					paths.push(newPath);
 
-					if (
-						currentObj[key] &&
-						typeof currentObj[key] === 'object' &&
-						!Array.isArray(currentObj[key])
-					) {
+					if (isValidObject(currentObj[key])) {
 						stack.push({ obj: currentObj[key], prefix: newPath });
 					}
 				}
