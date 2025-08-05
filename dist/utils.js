@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.clearPathCache = exports.getAllPaths = exports.isValidPath = exports.deletePath = exports.hasPath = exports.setValueByPath = exports.getValueByPath = void 0;
 const pathCache = new Map();
 const MAX_CACHE_SIZE = 1000;
-// Optimized helper for checking if value is a valid object
 const isValidObject = (value) => value != null && typeof value === 'object' && !Array.isArray(value);
 const parsePath = (path) => {
     if (pathCache.has(path)) {
@@ -13,9 +12,7 @@ const parsePath = (path) => {
         }
     }
     const keys = path.split('.');
-    // Prevent memory leaks by limiting cache size
     if (pathCache.size >= MAX_CACHE_SIZE) {
-        // Remove oldest entry (first key)
         const firstKey = pathCache.keys().next().value;
         if (firstKey) {
             pathCache.delete(firstKey);
@@ -47,8 +44,9 @@ const setValueByPath = (obj, path, value, options) => {
     let current = target;
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
-        if (!key)
+        if (!key) {
             continue;
+        }
         if (!(key in current) ||
             typeof current[key] !== 'object' ||
             current[key] === null) {
@@ -65,7 +63,10 @@ const hasPath = (obj, path) => {
     let current = obj;
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
-        if (!key || current == null || typeof current !== 'object' || !Object.hasOwn(current, key)) {
+        if (!key ||
+            current == null ||
+            typeof current !== 'object' ||
+            !Object.hasOwn(current, key)) {
             return false;
         }
         current = current[key];
@@ -83,7 +84,10 @@ const deletePath = (obj, path, options) => {
     let current = target;
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
-        if (!key || current == null || typeof current !== 'object' || !Object.hasOwn(current, key)) {
+        if (!key ||
+            current == null ||
+            typeof current !== 'object' ||
+            !Object.hasOwn(current, key)) {
             return target;
         }
         current = current[key];

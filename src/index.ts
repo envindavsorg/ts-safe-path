@@ -1,8 +1,10 @@
+import type { SchemaValidator, ValidationResult } from './schema';
 import type {
 	DeepPartial,
 	PathKeys,
 	PathValue,
 	SafePathOptions,
+	ValidatedSafePathOptions,
 } from './types';
 import {
 	clearPathCache,
@@ -31,6 +33,20 @@ export interface SafePath<T extends Record<string, unknown>> {
 	merge(partial: DeepPartial<T>, options?: SafePathOptions): T;
 	getAllPaths(): PathKeys<T>[];
 	isValidPath(path: string): path is PathKeys<T>;
+	validate<P extends PathKeys<T>>(
+		path: P,
+		schema: SchemaValidator<PathValue<T, P>>,
+	): ValidationResult<PathValue<T, P>>;
+	validateAndSet<P extends PathKeys<T>>(
+		path: P,
+		value: unknown,
+		schema: SchemaValidator<PathValue<T, P>>,
+		options?: ValidatedSafePathOptions,
+	): T;
+	safeValidate<P extends PathKeys<T>>(
+		path: P,
+		schema: SchemaValidator<PathValue<T, P>>,
+	): ValidationResult<PathValue<T, P>>;
 }
 
 export const safePath = <T extends Record<string, unknown>>(
@@ -93,6 +109,44 @@ export const safePath = <T extends Record<string, unknown>>(
 	isValidPath(path: string): path is PathKeys<T> {
 		return isValidPath(obj, path);
 	},
+
+	validate<P extends PathKeys<T>>(
+		path: P,
+		schema: SchemaValidator<PathValue<T, P>>,
+	): ValidationResult<PathValue<T, P>> {
+		const value = getValueByPath(obj, path);
+		return schema.validate(value);
+	},
+
+	validateAndSet<P extends PathKeys<T>>(
+		path: P,
+		value: unknown,
+		schema: SchemaValidator<PathValue<T, P>>,
+		options?: ValidatedSafePathOptions,
+	): T {
+		const validationResult = schema.validate(value);
+
+		if (!validationResult.success) {
+			if (options?.strict !== false) {
+				throw new Error(
+					`Validation failed for path "${path}": ${validationResult.errors
+						.map((e) => e.message)
+						.join(', ')}`,
+				);
+			}
+			return obj;
+		}
+
+		return this.set(path, validationResult.data, options);
+	},
+
+	safeValidate<P extends PathKeys<T>>(
+		path: P,
+		schema: SchemaValidator<PathValue<T, P>>,
+	): ValidationResult<PathValue<T, P>> {
+		const value = getValueByPath(obj, path);
+		return schema.safeParse(value);
+	},
 });
 
 const deepMerge = <T extends Record<string, unknown>>(
@@ -129,7 +183,19 @@ const deepMerge = <T extends Record<string, unknown>>(
 	return result;
 };
 
-export type { PathKeys, PathValue, DeepPartial, SafePathOptions };
+export type {
+	PathKeys,
+	PathValue,
+	DeepPartial,
+	SafePathOptions,
+	ValidatedSafePathOptions,
+};
+export type {
+	SchemaValidator,
+	ValidationError,
+	ValidationResult,
+} from './schema';
+export { s } from './schema';
 
 export {
 	getValueByPath,

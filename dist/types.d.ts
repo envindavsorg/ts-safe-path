@@ -10,4 +10,8 @@ export type SafePathOptions = {
     immutable?: boolean;
     cache?: boolean;
 };
+export type ValidatedSafePathOptions = SafePathOptions & {
+    validate?: boolean;
+    strict?: boolean;
+};
 //# sourceMappingURL=types.d.ts.map

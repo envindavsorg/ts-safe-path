@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clearPathCache = exports.getAllPaths = exports.isValidPath = exports.deletePath = exports.hasPath = exports.setValueByPath = exports.getValueByPath = exports.safePath = void 0;
+exports.clearPathCache = exports.getAllPaths = exports.isValidPath = exports.deletePath = exports.hasPath = exports.setValueByPath = exports.getValueByPath = exports.s = exports.safePath = void 0;
 const utils_1 = require("./utils");
 Object.defineProperty(exports, "clearPathCache", { enumerable: true, get: function () { return utils_1.clearPathCache; } });
 Object.defineProperty(exports, "deletePath", { enumerable: true, get: function () { return utils_1.deletePath; } });
@@ -51,6 +51,26 @@ const safePath = (obj, defaultOptions) => ({
     isValidPath(path) {
         return (0, utils_1.isValidPath)(obj, path);
     },
+    validate(path, schema) {
+        const value = (0, utils_1.getValueByPath)(obj, path);
+        return schema.validate(value);
+    },
+    validateAndSet(path, value, schema, options) {
+        const validationResult = schema.validate(value);
+        if (!validationResult.success) {
+            if (options?.strict !== false) {
+                throw new Error(`Validation failed for path "${path}": ${validationResult.errors
+                    .map((e) => e.message)
+                    .join(', ')}`);
+            }
+            return obj;
+        }
+        return this.set(path, validationResult.data, options);
+    },
+    safeValidate(path, schema) {
+        const value = (0, utils_1.getValueByPath)(obj, path);
+        return schema.safeParse(value);
+    },
 });
 exports.safePath = safePath;
 const deepMerge = (target, source, immutable = false) => {
@@ -65,15 +85,15 @@ const deepMerge = (target, source, immutable = false) => {
                 targetValue &&
                 typeof targetValue === 'object' &&
                 !Array.isArray(targetValue)) {
-                // @ts-ignore
                 result[key] = deepMerge(targetValue, sourceValue, immutable);
             }
             else if (sourceValue !== undefined) {
-                // @ts-ignore
                 result[key] = sourceValue;
             }
         }
     }
     return result;
 };
+var schema_1 = require("./schema");
+Object.defineProperty(exports, "s", { enumerable: true, get: function () { return schema_1.s; } });
 //# sourceMappingURL=index.js.map
