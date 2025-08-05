@@ -73,12 +73,15 @@ jobs:
 
       - name: Update package.json for NPM Registry
         run: |
-          # Change package name for NPM registry and remove GitHub registry config
-          sed -i 's/"@envindavsorg\/ts-safe-path"/"ts-safe-path"/' package.json
-          sed -i '/"registry": "https:\/\/npm.pkg.github.com"/d' package.json
-          sed -i '/"@envindavsorg:registry": "https:\/\/npm.pkg.github.com"/d' package.json
-          # Remove entire publishConfig section to use default NPM registry
-          sed -i '/"publishConfig": {/,/},/d' package.json
+          # Use Node.js to safely modify package.json for NPM registry
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.name = 'ts-safe-path';
+            delete pkg.publishConfig;
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+            console.log('Updated package.json for NPM registry');
+          "
 
       - name: Publish to NPM
         run: pnpm publish --access public --no-git-checks
