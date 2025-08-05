@@ -71,6 +71,13 @@ jobs:
       - name: Build package
         run: pnpm build
 
+      - name: Update package.json for NPM Registry
+        run: |
+          # Change package name for NPM registry and remove GitHub registry config
+          sed -i 's/"@envindavsorg\/ts-safe-path"/"ts-safe-path"/' package.json
+          sed -i '/"registry": "https:\/\/npm.pkg.github.com",/d' package.json
+          sed -i '/"@envindavsorg:registry": "https:\/\/npm.pkg.github.com"/d' package.json
+
       - name: Publish to NPM
         run: pnpm publish --access public --no-git-checks
         env:
